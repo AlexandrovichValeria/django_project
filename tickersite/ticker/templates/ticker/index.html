@@ -1,12 +1,15 @@
-{% if query_list %}
-    <ul>
-    {% for query in query_list %}
-        <tr id="{{ query.id }}">
-            <td>{{ query.query_text }}</td>
-        </tr>
-        <p></p>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>База данных пуста. Добавьте '?text=[запрос]' к URL чтобы сгенерировать бегущую строку.</p>
-{% endif %}
+<script src="https://unpkg.com/htmx.org@2.0.1" integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/" crossorigin="anonymous"></script>
+<div hx-get="/ticker" hx-trigger="every 2s">
+    {% if query_list %}
+        <ul>
+        {% for query in query_list %}
+            <tr id="{{ query.id }}">
+                <td>{{ query.query_text }}</td>
+            </tr>
+            <p></p>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>База данных пуста. Добавьте '?text=[запрос]' к URL чтобы сгенерировать бегущую строку.</p>
+    {% endif %}
+</div>
