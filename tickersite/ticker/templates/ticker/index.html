@@ -1,0 +1,12 @@
+{% if query_list %}
+    <ul>
+    {% for query in query_list %}
+        <tr id="{{ query.id }}">
+            <td>{{ query.query_text }}</td>
+        </tr>
+        <p></p>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>База данных пуста. Добавьте '?text=[запрос]' к URL чтобы сгенерировать бегущую строку.</p>
+{% endif %}
