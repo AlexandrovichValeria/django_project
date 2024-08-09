@@ -5,4 +5,4 @@ opencv-contrib-python==4.10.0.84
 opencv-python==4.9.0.80
 sqlparse==0.5.1
 tzdata==2024.1
-vboxapi==1.0
+
