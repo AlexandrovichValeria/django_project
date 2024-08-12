@@ -6,6 +6,7 @@ import numpy as np
 from wsgiref.util import FileWrapper
 from .models import Query
 from django.template import loader
+from PIL import ImageFont, ImageDraw, Image
 
 
 def index(request):
@@ -19,11 +20,11 @@ def index(request):
         }
         return HttpResponse(template.render(context, request))
 
-
     new_query = Query(query_text=search_query)
     new_query.save()
     create_ticker(search_query)
     return FileResponse(open('ticker.mp4', 'rb'), as_attachment=True)
+
 
 def querylist(request):
     query_list = Query.objects.all()
@@ -34,26 +35,34 @@ def querylist(request):
     return HttpResponse(template.render(context, request))
 
 
+def get_text_dimensions(text_string, font):
+    ascent, descent = font.getmetrics()
+    text_width = font.getmask(text_string).getbbox()[2]
+    text_height = font.getmask(text_string).getbbox()[3] + descent
+    return (text_width, text_height)
+
+
 def create_ticker(string):
     width, height = 100, 100
     time = 3
-    frame_per_second = 24
+    frames_per_second = 24
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter("ticker.mp4", fourcc, frame_per_second, (width, height))
+    out = cv2.VideoWriter("ticker.mp4", fourcc, frames_per_second, (width, height))
     frame = np.zeros((height, width, 3), dtype=np.uint8)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    pil_frame = Image.fromarray(frame)
 
-    font_scale = 1
-    font_thickness = 1
-    font_color = 0
-    font = cv2.QT_FONT_NORMAL
-    message_size = cv2.getTextSize(string, font, font_scale, font_thickness)
-    x, y = width, height // 2
+    font = ImageFont.truetype("arial.ttf", 25)
+    draw = ImageDraw.Draw(pil_frame)
+    message_size = get_text_dimensions(string, font)
+    x, y = width, (height - message_size[1]) // 2
 
-    while x + message_size[0][0] > 0:
-        x -= (width + message_size[0][0]) // time // frame_per_second
-        frame.fill(255)
-        cv2.putText(frame, string, (x, y), font, font_scale, font_color, font_thickness)
+    while x + message_size[0] > 0:
+        x -= (width + message_size[0]) / (time * frames_per_second)
+        draw.rectangle([(0,0), (width, height)], fill=(255, 255, 255))
+        draw.text((x, y), string, fill=(0, 0, 0), font=font)
+        frame = np.asarray(pil_frame)
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         out.write(frame)
-    out.release()
 
-# Create your views here.
+    out.release()
