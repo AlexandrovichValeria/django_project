@@ -52,7 +52,7 @@ def create_ticker(string):
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     pil_frame = Image.fromarray(frame)
 
-    font = ImageFont.truetype("arial.ttf", 25)
+    font = ImageFont.truetype("./arial.ttf", 25)
     draw = ImageDraw.Draw(pil_frame)
     message_size = get_text_dimensions(string, font)
     x, y = width, (height - message_size[1]) // 2
